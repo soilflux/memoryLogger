@@ -75,6 +75,11 @@ function getToDoList() {
   return toDoList;
 }
 
+function skipFile() {
+  localStorage.setItem(config.storageKey, '');
+  fileLoaded();
+}
+
 function fileLoaded() {
   updateUI('file loaded');
   setTimeout(getNextTask, 100);
@@ -106,6 +111,7 @@ function getTaskType() {
 function updateUI(state, prompt) {
   if (state === 'file loaded') {
     document.getElementById('fileInputButton').style.display = "none";
+    document.getElementById('skipFileButton').style.display = "none";
     document.getElementById('useSavedTextButton').style.display = "none";
   }
   else if (state === 'requesting new task') {
