@@ -58,7 +58,7 @@ function getToDoList() {
   if (day > Math.floor(config.monthLengths[monthName] * .9)) {
     toDoList.push(monthName);
   }
-  if ((dayName === 'Sunday' || dayName === 'Saturday')) {
+  if ((dayName === 'sunday' || dayName === 'saturday')) {
     toDoList.push('week');
   }
   if (hour > 14) {
