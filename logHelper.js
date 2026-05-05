@@ -1,6 +1,6 @@
 const config = {
   storageKey: 'memoryLog',
-  fileNameKey: 'fileName',
+  fileNameKey: 'memoryLogFile',
   donePrompt: 'done!',
   phasesOfDay: ['night', 'evening', 'morning', 'afternoon'],
   seasonEndMonths: ['february', 'may', 'august', 'november'],
