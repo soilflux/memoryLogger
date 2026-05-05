@@ -1,0 +1,23 @@
+<!DOCTYPE>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link id="tab_pic" rel="shortcut icon" href="tab_pics/circus_tent.png" />
+  <link style="text/css" rel="stylesheet" href="stylesheet.css" />
+  <title>Logger</title>
+</head>
+
+<body class=oncontextmenu="return false;">
+  <textarea id="entry"></textarea>
+  <input type="file" id="fileInputButton" accept=".txt" />
+  <button id="useSavedTextButton">Load</button>
+  <button id="getNextTask" onmousedown="log()">Send</button>
+  <small id="tasksLeft"></small>
+  <button id="downloadBtn" onclick="downloadTextFile()">Download</button>
+  <br><small id="currentTask"></small>
+</body>
+<script src="fileHandler.js"></script>
+<script src="logHelper.js"></script>
+
+</html>
