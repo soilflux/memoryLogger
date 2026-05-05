@@ -32,6 +32,7 @@ if (localStorage.getItem(config.storageKey)) {
 const now = new Date();
 const hour = now.getHours();
 const day = now.getDate();
+const dayName = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
 const week = getWeekOfYear(now);
 const monthName = (now.toLocaleString('default', { month: 'long' })).toLowerCase();
 const year = now.getFullYear();
@@ -57,7 +58,7 @@ function getToDoList() {
   if (day > Math.floor(config.monthLengths[monthName] * .9)) {
     toDoList.push(monthName);
   }
-  if ((week - Math.floor(week)) > 0.8) {
+  if ((dayName === 'Sunday' || dayName === 'Saturday')) {
     toDoList.push('week');
   }
   if (hour > 14) {
