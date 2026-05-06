@@ -23,8 +23,8 @@ background-size:cover;
 #useSavedTextButton {
   display:none;
 }
-#entry {
-  height:12%;
+.entry {
+  height:6.75%;
   width:100%;
   font-size:16px;
   background-color:purple;

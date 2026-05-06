@@ -85,7 +85,7 @@ function updateToDoList() {
     toDoList.push(String(year));
   }
 
-  
+
   const storableToDoList = getStorableToDoList(toDoList);
   const rawFileContent = localStorage.getItem(config.storageKey);
 
@@ -150,13 +150,14 @@ function updateUI(state, prompt) {
     document.getElementById('useSavedTextButton').style.display = "none";
   }
   else if (state === 'requesting new task') {
+    const entryId = config.phasesOfDay.includes(prompt) ? 'shortTermEntry' : 'longTermEntry';
     if (prompt === config.donePrompt) {
       document.getElementById('getNextTask').style.display = 'none';
-      document.getElementById('entry').value = prompt;
+      document.getElementById(entryId).value = prompt;
     }
     else {
       document.getElementById('getNextTask').style.display = "inline-block";
-      document.getElementById('entry').value = 'the ' + prompt + ' ';
+      document.getElementById(entryId).value = 'the ' + prompt + ' ';
     }
   }
 }
