@@ -5,6 +5,10 @@ const config = {
   phasesOfDay: ['night', 'evening', 'morning', 'afternoon'],
   seasons: ['spring', 'summer', 'autumn', 'winter'],
   seasonEndMonths: ['february', 'may', 'august', 'november'],
+  springMonths: ['march', 'april', 'may'],
+  summerMonths: ['june', 'july', 'august'],
+  autumnMonths: ['september', 'october', 'november'],
+  winterMonths: ['december', 'january', 'february'],
   monthLengths: {
     january: 31,
     february: 28,
@@ -105,12 +109,19 @@ function updateToDoList() {
 function getStorableToDoList(toDoList) {
   return toDoList.map(task => {
     if (config.phasesOfDay.includes(task)) return year + '-' + monthName + day + task;
-    else if (task === 'day') return year + '-' + monthName + day;
+    else if (task === 'day') return year + 'week' + weekOfYear + '-' + monthName + day;
     else if (task === 'week') return year + '-week' + weekOfYear;
-    else if (task === 'month') return year + '-' + monthName;
+    else if (task === 'month') return 'month' + year + getSeason(monthName) + '-' + monthName;
     else if (config.seasons.includes(task)) return year + '-' + task;
     else return task;
   });
+}
+
+function getSeason(monthName) {
+  if (config.springMonths.includes(monthName)) return 'spring';
+  else if (config.summerMonths.includes(monthName)) return 'summer';
+  else if (config.autumnMonths.includes(monthName)) return 'autumn';
+  else if (config.winterMonths.includes(monthName)) return 'winter';
 }
 
 function skipFile() {
@@ -156,6 +167,22 @@ function getTaskType() {
   else return state.toDoList[0];
 }
 
+function getTaskContext(prompt) {
+  const rawFileContent = localStorage.getItem(config.storageKey);
+  let searchTerm = '';
+  if (prompt === config.donePrompt) return '';
+  else if (prompt === 'day') searchTerm = year + '-' + monthName + day;
+  else if (prompt === 'week') searchTerm = year + 'week' + weekOfYear;
+  else if (prompt === 'month') searchTerm = year + 'week' + weekOfYear + '-' + monthName + day;
+  else if (config.seasons.includes(prompt)) searchTerm = year + getSeason(monthName);
+  else searchTerm = 'month' + year;
+  return rawFileContent
+    .split(/\r?\n/)
+    .filter(line => line.includes(searchTerm))
+    .map(line => line.replace(/^.*:::/, '').trim())
+    .join('\n');
+}
+
 function updateUI(state, prompt) {
   if (state === 'file loaded') {
     document.getElementById('fileInputButton').style.display = "none";
@@ -165,8 +192,11 @@ function updateUI(state, prompt) {
   }
   else if (state === 'requesting new task') {
     const entryId = config.phasesOfDay.includes(prompt) ? 'shortTermEntry' : 'longTermEntry';
+
     if (prompt === config.donePrompt) document.getElementById(entryId).value = prompt;
     else document.getElementById(entryId).value = 'the ' + prompt + ' ';
+
+    if (entryId === 'longTermEntry') document.getElementById('taskContext').innerText = getTaskContext(prompt);
   }
 }
 
