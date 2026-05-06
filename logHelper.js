@@ -25,6 +25,7 @@ const state = {
   fileName: localStorage.getItem(config.fileNameKey) || 'memoryLog.txt',
   toDoList: [],
   storableToDoList: [],
+  entry: '',
 };
 
 if (localStorage.getItem(config.storageKey)) {
@@ -89,13 +90,14 @@ function updateToDoList() {
   const storableToDoList = getStorableToDoList(toDoList);
   const rawFileContent = localStorage.getItem(config.storageKey);
 
+  state.storableToDoList = storableToDoList.filter((task, index) => {
+    return (!rawFileContent.includes(task + ':::') || config.phasesOfDay.includes(toDoList[index]));
+  });
+  console.log(state.storableToDoList);
+
   state.toDoList = [];
   storableToDoList.forEach((task, index) => {
-    if (!rawFileContent.includes(task + ':::')) state.toDoList.push(toDoList[index]);
-  });
-
-  state.storableToDoList = storableToDoList.filter(task => {
-    return !rawFileContent.includes(task + ':::');
+    if (!rawFileContent.includes(task + ':::') || config.phasesOfDay.includes(toDoList[index])) state.toDoList.push(toDoList[index]);
   });
 }
 
@@ -122,17 +124,25 @@ function fileLoaded() {
 
 function getNextTask() {
   updateToDoList();
+  updateUI('requesting new task', state.toDoList[0]);
   let prompt = '';
-  if (state.toDoList.length > 0) prompt = state.toDoList[0];
+  if (state.toDoList.length > 1) prompt = state.toDoList[1];
   else {
     prompt = config.donePrompt;
   }
   updateUI('requesting new task', prompt);
 }
 
+['shortTermEntry', 'longTermEntry'].forEach(id => {
+  const field = document.getElementById(id);
+  field.addEventListener('input', (event) => {
+    state.entry = event.target.value;
+  });
+});
+
 function log() {
   let rawFileContent = localStorage.getItem(config.storageKey);
-  rawFileContent += state.storableToDoList[0] + ':::' + document.getElementById('entry').value + '\n';
+  rawFileContent += state.storableToDoList[0] + ':::' + state.entry + '\n';
   localStorage.setItem(config.storageKey, rawFileContent);
   getNextTask();
 }
@@ -148,17 +158,12 @@ function updateUI(state, prompt) {
     document.getElementById('fileInputButton').style.display = "none";
     document.getElementById('skipFileButton').style.display = "none";
     document.getElementById('useSavedTextButton').style.display = "none";
+    document.getElementById('getNextTask').style.display = "inline-block";
   }
   else if (state === 'requesting new task') {
     const entryId = config.phasesOfDay.includes(prompt) ? 'shortTermEntry' : 'longTermEntry';
-    if (prompt === config.donePrompt) {
-      document.getElementById('getNextTask').style.display = 'none';
-      document.getElementById(entryId).value = prompt;
-    }
-    else {
-      document.getElementById('getNextTask').style.display = "inline-block";
-      document.getElementById(entryId).value = 'the ' + prompt + ' ';
-    }
+    if (prompt === config.donePrompt) document.getElementById(entryId).value = prompt;
+    else document.getElementById(entryId).value = 'the ' + prompt + ' ';
   }
 }
 
