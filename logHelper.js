@@ -3,6 +3,7 @@ const config = {
   fileNameKey: 'memoryLogFile',
   donePrompt: 'done!',
   phasesOfDay: ['night', 'evening', 'morning', 'afternoon'],
+  seasons: ['spring', 'summer', 'autumn', 'winter'],
   seasonEndMonths: ['february', 'may', 'august', 'november'],
   monthLengths: {
     january: 31,
@@ -23,6 +24,7 @@ const config = {
 const state = {
   fileName: localStorage.getItem(config.fileNameKey) || 'memoryLog.txt',
   toDoList: [],
+  storableToDoList: [],
 };
 
 if (localStorage.getItem(config.storageKey)) {
@@ -36,6 +38,20 @@ const dayName = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLo
 const week = getWeekOfYear(now);
 const monthName = (now.toLocaleString('default', { month: 'long' })).toLowerCase();
 const year = now.getFullYear();
+const weekOfYear = countSaturdays();
+
+function countSaturdays() {
+  let count = 0;
+  let startDate = new Date(year, 0, 1);
+
+  while (startDate <= now) {
+    if (startDate.getDay() === 6) { // 6 is Saturday
+      count++;
+    }
+    startDate.setDate(startDate.getDate() + 1);
+  }
+  return count;
+}
 
 function getWeekOfYear(date = new Date()) {
   const timestamp1 = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
@@ -44,10 +60,20 @@ function getWeekOfYear(date = new Date()) {
   return differenceInMilliseconds / 1000 / 60 / 60 / 24 / 7;
 }
 
-function getToDoList() {
-  let toDoList = [];
-  if (week > 50) {
-    toDoList.push(String(year));
+function updateToDoList() {
+  const toDoList = [];
+  if (hour < 6) toDoList.push('night');
+  else if (hour < 12) toDoList.push('morning');
+  else if (hour < 18) toDoList.push('afternoon');
+  else if (hour < 24) toDoList.push('evening');
+  if (hour > 14) {
+    toDoList.push('day');
+  }
+  if ((dayName === 'sunday' || dayName === 'saturday')) {
+    toDoList.push('week');
+  }
+  if (day > Math.floor(config.monthLengths[monthName] * .9)) {
+    toDoList.push('month');
   }
   if (day > 20) {
     if (monthName === 'february') toDoList.push('winter');
@@ -55,25 +81,33 @@ function getToDoList() {
     if (monthName === 'august') toDoList.push('summer');
     if (monthName === 'november') toDoList.push('autumn');
   }
-  if (day > Math.floor(config.monthLengths[monthName] * .9)) {
-    toDoList.push(monthName);
+  if (week > 50) {
+    toDoList.push(String(year));
   }
-  if ((dayName === 'sunday' || dayName === 'saturday')) {
-    toDoList.push('week');
-  }
-  if (hour > 14) {
-    toDoList.push('day');
-  }
-  if (hour < 6) toDoList.push('night');
-  else if (hour < 12) toDoList.push('morning');
-  else if (hour < 18) toDoList.push('afternoon');
-  else if (hour < 24) toDoList.push('evening');
 
+  
+  const storableToDoList = getStorableToDoList(toDoList);
   const rawFileContent = localStorage.getItem(config.storageKey);
-  toDoList = toDoList.filter(task => {
+
+  state.toDoList = [];
+  storableToDoList.forEach((task, index) => {
+    if (!rawFileContent.includes(task + ':::')) state.toDoList.push(toDoList[index]);
+  });
+
+  state.storableToDoList = storableToDoList.filter(task => {
     return !rawFileContent.includes(task + ':::');
   });
-  return toDoList;
+}
+
+function getStorableToDoList(toDoList) {
+  return toDoList.map(task => {
+    if (config.phasesOfDay.includes(task)) return year + '-' + monthName + day + task;
+    else if (task === 'day') return year + '-' + monthName + day;
+    else if (task === 'week') return year + '-week' + weekOfYear;
+    else if (task === 'month') return year + '-' + monthName;
+    else if (config.seasons.includes(task)) return year + '-' + task;
+    else return task;
+  });
 }
 
 function skipFile() {
@@ -87,7 +121,7 @@ function fileLoaded() {
 }
 
 function getNextTask() {
-  state.toDoList = getToDoList();
+  updateToDoList();
   let prompt = '';
   if (state.toDoList.length > 0) prompt = state.toDoList[0];
   else {
@@ -98,7 +132,7 @@ function getNextTask() {
 
 function log() {
   let rawFileContent = localStorage.getItem(config.storageKey);
-  rawFileContent += state.toDoList[0] + ':::' + document.getElementById('entry').value + '\n';
+  rawFileContent += state.storableToDoList[0] + ':::' + document.getElementById('entry').value + '\n';
   localStorage.setItem(config.storageKey, rawFileContent);
   getNextTask();
 }
