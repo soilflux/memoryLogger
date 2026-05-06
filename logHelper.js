@@ -26,6 +26,7 @@ const state = {
   toDoList: [],
   storableToDoList: [],
   entry: '',
+  entryType: '',
 };
 
 if (localStorage.getItem(config.storageKey)) {
@@ -137,12 +138,14 @@ function getNextTask() {
   const field = document.getElementById(id);
   field.addEventListener('input', (event) => {
     state.entry = event.target.value;
+    state.entryType = event.target.id;
   });
 });
 
 function log() {
   let rawFileContent = localStorage.getItem(config.storageKey);
-  rawFileContent += state.storableToDoList[0] + ':::' + state.entry + '\n';
+  const index = state.entryType === 'shortTermEntry' ? 0 : 1;
+  rawFileContent += state.storableToDoList[index] + ':::' + state.entry + '\n';
   localStorage.setItem(config.storageKey, rawFileContent);
   getNextTask();
 }
