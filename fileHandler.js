@@ -22,7 +22,6 @@ useSavedTextButton.addEventListener('mousedown', () => {
 });
 
 function useSavedText() {
-    const rawFileContent = localStorage.getItem(config.storageKey);
     fileLoaded();
 }
 

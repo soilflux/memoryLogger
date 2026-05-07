@@ -1,6 +1,7 @@
 const config = {
   storageKey: 'memoryLog',
   fileNameKey: 'memoryLogFile',
+  fileIsDeletable: false,
   donePrompt: 'done!',
   phasesOfDay: ['night', 'evening', 'morning', 'afternoon'],
   seasons: ['spring', 'summer', 'autumn', 'winter'],
@@ -35,7 +36,17 @@ const state = {
 
 if (localStorage.getItem(config.storageKey)) {
   document.getElementById("useSavedTextButton").style.display = "inline-block";
+  config.fileIsDeletable = true;
 }
+
+const skipFileButton = document.getElementById('skipFileButton');
+skipFileButton.addEventListener('mousedown', function () {
+  const userConfirmed = config.fileIsDeletable ? confirm("Are you sure? This will wipe your stored file.") : true;
+  if (userConfirmed) {
+    localStorage.setItem(config.storageKey, '');
+    fileLoaded();
+  }
+});
 
 const now = new Date();
 const hour = now.getHours();
@@ -72,7 +83,7 @@ function updateToDoList() {
   else if (hour < 12) toDoList.push('morning');
   else if (hour < 18) toDoList.push('afternoon');
   else if (hour < 24) toDoList.push('evening');
-  if (hour > 14) {
+  if (hour > 13.5) {
     toDoList.push('day');
   }
   if ((dayName === 'sunday' || dayName === 'saturday')) {
@@ -122,11 +133,6 @@ function getSeason(monthName) {
   else if (config.summerMonths.includes(monthName)) return 'summer';
   else if (config.autumnMonths.includes(monthName)) return 'autumn';
   else if (config.winterMonths.includes(monthName)) return 'winter';
-}
-
-function skipFile() {
-  localStorage.setItem(config.storageKey, '');
-  fileLoaded();
 }
 
 function fileLoaded() {
