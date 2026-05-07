@@ -57,6 +57,8 @@ const monthName = (now.toLocaleString('default', { month: 'long' })).toLowerCase
 const year = now.getFullYear();
 const weekOfYear = countSaturdays();
 
+console.log(hour)
+
 function countSaturdays() {
   let count = 0;
   let startDate = new Date(year, 0, 1);
@@ -83,7 +85,7 @@ function updateToDoList() {
   else if (hour < 12) toDoList.push('morning');
   else if (hour < 18) toDoList.push('afternoon');
   else if (hour < 24) toDoList.push('evening');
-  if (hour > 13.5) {
+  if (hour >= 14) {
     toDoList.push('day');
   }
   if ((dayName === 'sunday' || dayName === 'saturday')) {
