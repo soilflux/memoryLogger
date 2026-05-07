@@ -120,10 +120,10 @@ function updateToDoList() {
 function getStorableToDoList(toDoList) {
   return toDoList.map(task => {
     if (config.phasesOfDay.includes(task)) return year + '-' + monthName + day + task;
-    else if (task === 'day') return year + 'week' + weekOfYear + '-' + monthName + day;
-    else if (task === 'week') return year + '-week' + weekOfYear;
-    else if (task === 'month') return 'month' + year + getSeason(monthName) + '-' + monthName;
-    else if (config.seasons.includes(task)) return year + '-' + task;
+    else if (task === 'day') return year + 'week' + weekOfYear + '-' + monthName + ' ' + day;
+    else if (task === 'week') return getSeason(monthName) + year + '-week' + weekOfYear;
+    else if (task === 'month') return getSeason(monthName) + year + '--' + monthName;
+    else if (config.seasons.includes(task)) return year + '--' + task;
     else return task;
   });
 }
@@ -179,9 +179,9 @@ function getTaskContext(prompt) {
   if (prompt === config.donePrompt) return '';
   else if (prompt === 'day') searchTerm = year + '-' + monthName + day;
   else if (prompt === 'week') searchTerm = year + 'week' + weekOfYear;
-  else if (prompt === 'month') searchTerm = year + 'week' + weekOfYear + '-' + monthName + day;
-  else if (config.seasons.includes(prompt)) searchTerm = year + getSeason(monthName);
-  else searchTerm = 'month' + year;
+  else if (prompt === 'month') searchTerm = '-' + monthName + ' ';
+  else if (config.seasons.includes(prompt)) searchTerm = getSeason(monthName) + year;
+  else searchTerm = year + '--';
   return rawFileContent
     .split(/\r?\n/)
     .filter(line => line.includes(searchTerm))
